@@ -1,0 +1,11 @@
+/// Cœur logique du Rubik's Cube : modèle, validation, solveur, suivi.
+///
+/// Ce module n'utilise pas Flutter : il est testable en pur Dart.
+library;
+
+export 'cubie_cube.dart' show CubieCube;
+export 'definitions.dart';
+export 'moves.dart';
+export 'solver.dart';
+export 'tracking.dart';
+export 'validation.dart';
