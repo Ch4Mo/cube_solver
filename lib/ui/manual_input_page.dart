@@ -3,18 +3,34 @@ import 'dart:math';
 import 'package:material_ui/material_ui.dart';
 
 import '../cube/cube.dart';
+import '../vision/color_classifier.dart';
 import 'cube_widgets.dart';
 import 'solution_page.dart';
 
 /// Saisie manuelle des couleurs, face par face.
 ///
-/// Servira aussi à corriger les couleurs détectées sur les photos.
+/// Sert aussi à vérifier et corriger les couleurs détectées sur les photos.
 class ManualInputPage extends StatefulWidget {
-  const ManualInputPage({super.key, this.initial});
+  const ManualInputPage({
+    super.key,
+    this.initial,
+    this.uncertain,
+    this.references,
+  });
 
   /// Saisie de départ (par ex. issue des photos). Par défaut, seuls les
   /// centres sont remplis.
   final CubeInput? initial;
+
+  /// Cases dont la détection est incertaine (scan). `null` si la saisie ne
+  /// vient pas d'un scan.
+  final Set<int>? uncertain;
+
+  /// Couleurs de référence mesurées pendant le scan, transmises à l'écran de
+  /// solution pour vérifier le cube en cours de route.
+  final Map<CubeColor, Lab>? references;
+
+  bool get fromScan => uncertain != null;
 
   @override
   State<ManualInputPage> createState() => _ManualInputPageState();
@@ -24,11 +40,15 @@ class _ManualInputPageState extends State<ManualInputPage> {
   late CubeInput _input = widget.initial ?? CubeInput();
   int _faceStep = 0;
   CubeColor _selected = CubeColor.white;
+  late final Set<int> _uncertain = {...?widget.uncertain};
 
   Face get _face => inputOrder[_faceStep];
 
   void _paint(int k) {
-    setState(() => _input[_face.index * 9 + k] = _selected);
+    setState(() {
+      _input[_face.index * 9 + k] = _selected;
+      _uncertain.remove(_face.index * 9 + k);
+    });
   }
 
   void _goToFace(Face face) {
@@ -38,9 +58,13 @@ class _ManualInputPageState extends State<ManualInputPage> {
   Future<void> _onMenu(String action) async {
     switch (action) {
       case 'clear':
-        setState(() => _input.clear());
+        setState(() {
+          _input.clear();
+          _uncertain.clear();
+        });
       case 'random':
         setState(() {
+          _uncertain.clear();
           _input = CubeInput.fromCube(CubieCube.random(Random()));
           _faceStep = 0;
         });
@@ -50,7 +74,11 @@ class _ManualInputPageState extends State<ManualInputPage> {
   void _solve(ValidationResult v) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => SolutionPage(start: v.cube!, scheme: v.colorScheme!),
+        builder: (_) => SolutionPage(
+          start: v.cube!,
+          scheme: v.colorScheme!,
+          references: widget.references,
+        ),
       ),
     );
   }
@@ -90,6 +118,22 @@ class _ManualInputPageState extends State<ManualInputPage> {
             return ListView(
               padding: const EdgeInsets.all(16),
               children: [
+                if (widget.fromScan)
+                  Card(
+                    color: theme.colorScheme.secondaryContainer,
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Text(
+                        _uncertain.isEmpty
+                            ? 'Couleurs détectées. Vérifiez chaque face et '
+                                  'corrigez si besoin.'
+                            : 'Couleurs détectées. Vérifiez chaque face : '
+                                  '${_uncertain.length} case(s) incertaine(s) '
+                                  'sont entourées en orange.',
+                      ),
+                    ),
+                  ),
+                if (widget.fromScan) const SizedBox(height: 12),
                 Text(
                   'Face ${_faceStep + 1}/6 : ${faceName(_face)}',
                   style: theme.textTheme.titleLarge,
@@ -119,6 +163,10 @@ class _ManualInputPageState extends State<ManualInputPage> {
                           size: max(gridSize - 96, 150),
                           highlighted: {
                             for (final i in highlighted)
+                              if (i ~/ 9 == _face.index) i % 9,
+                          },
+                          warned: {
+                            for (final i in _uncertain)
                               if (i ~/ 9 == _face.index) i % 9,
                           },
                           onTap: _paint,
@@ -151,6 +199,7 @@ class _ManualInputPageState extends State<ManualInputPage> {
                   child: CubeNetView(
                     colors: _input.colors,
                     highlighted: highlighted,
+                    warned: _uncertain,
                     selectedFace: _face,
                     onFaceTap: _goToFace,
                   ),

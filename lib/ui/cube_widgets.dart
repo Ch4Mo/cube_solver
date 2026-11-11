@@ -20,6 +20,7 @@ class FaceGrid extends StatelessWidget {
     required this.colors,
     required this.size,
     this.highlighted = const {},
+    this.warned = const {},
     this.onTap,
   });
 
@@ -27,8 +28,11 @@ class FaceGrid extends StatelessWidget {
   final List<CubeColor?> colors;
   final double size;
 
-  /// Cases (0..8) à entourer en rouge.
+  /// Cases (0..8) à entourer en rouge (erreur).
   final Set<int> highlighted;
+
+  /// Cases (0..8) à entourer en orange (à vérifier).
+  final Set<int> warned;
   final void Function(int index)? onTap;
 
   @override
@@ -54,6 +58,7 @@ class FaceGrid extends StatelessWidget {
   Widget _cell(BuildContext context, int k, double cell, double gap) {
     final color = colors[k];
     final isHighlighted = highlighted.contains(k);
+    final isWarned = !isHighlighted && warned.contains(k);
     final box = Container(
       width: cell - 2 * gap,
       height: cell - 2 * gap,
@@ -62,8 +67,14 @@ class FaceGrid extends StatelessWidget {
         color: displayColor(color),
         borderRadius: BorderRadius.circular(cell * 0.12),
         border: Border.all(
-          color: isHighlighted ? Colors.redAccent : Colors.black54,
-          width: isHighlighted ? (cell * 0.08).clamp(2.0, 4.0) : 0.5,
+          color: isHighlighted
+              ? Colors.redAccent
+              : isWarned
+              ? Colors.amber
+              : Colors.black54,
+          width: isHighlighted || isWarned
+              ? (cell * 0.08).clamp(2.0, 4.0)
+              : 0.5,
         ),
       ),
       child: color == null && cell > 30
@@ -91,6 +102,7 @@ class CubeNetView extends StatelessWidget {
     super.key,
     required this.colors,
     this.highlighted = const {},
+    this.warned = const {},
     this.selectedFace,
     this.onFaceTap,
     this.maxCellSize = 24,
@@ -101,6 +113,9 @@ class CubeNetView extends StatelessWidget {
 
   /// Cases (0..53) à entourer en rouge.
   final Set<int> highlighted;
+
+  /// Cases (0..53) à entourer en orange.
+  final Set<int> warned;
   final Face? selectedFace;
   final void Function(Face face)? onFaceTap;
   final double maxCellSize;
@@ -128,6 +143,10 @@ class CubeNetView extends StatelessWidget {
               size: faceSize,
               highlighted: {
                 for (final i in highlighted)
+                  if (i ~/ 9 == f.index) i % 9,
+              },
+              warned: {
+                for (final i in warned)
                   if (i ~/ 9 == f.index) i % 9,
               },
             ),

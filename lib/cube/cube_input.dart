@@ -117,6 +117,29 @@ class CubeInput {
   ];
 }
 
+/// Consigne pour photographier une face pendant le scan (schéma standard :
+/// blanc en haut, vert devant). Suit l'ordre de [inputOrder].
+String scanInstruction(Face face) => switch (face) {
+  Face.F =>
+    'Tenez le cube avec le centre vert face à vous et le centre '
+        'blanc en haut.',
+  Face.R =>
+    "Tournez le cube d'un quart de tour vers la gauche : centre "
+        'rouge face à vous, blanc toujours en haut.',
+  Face.B =>
+    "Encore un quart de tour vers la gauche : centre bleu face à "
+        'vous, blanc en haut.',
+  Face.L =>
+    "Encore un quart de tour vers la gauche : centre orange face à "
+        'vous, blanc en haut.',
+  Face.U =>
+    'Revenez au vert face à vous, puis basculez le haut du cube vers '
+        'vous : centre blanc face à vous, bleu en haut.',
+  Face.D =>
+    'Revenez au vert face à vous, puis basculez le bas du cube vers '
+        'vous : centre jaune face à vous, vert en haut.',
+};
+
 /// Explication d'un mouvement en français, par ex. « Tournez la face droite
 /// (rouge) d'un quart de tour dans le sens horaire ».
 ///

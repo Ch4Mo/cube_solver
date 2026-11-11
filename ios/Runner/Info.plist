@@ -6,6 +6,8 @@
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>NSCameraUsageDescription</key>
+	<string>L'appareil photo sert à scanner les faces de votre Rubik's Cube.</string>
 	<key>CFBundleDisplayName</key>
 	<string>Cube Solver</string>
 	<key>CFBundleExecutable</key>

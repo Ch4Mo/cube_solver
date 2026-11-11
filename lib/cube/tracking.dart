@@ -29,10 +29,10 @@ class ProgressCheck {
     if (matchingStep != null) {
       final diff = matchingStep! - expectedStep;
       return diff < 0
-          ? 'Il semble manquer ${-diff} mouvement(s) : vous êtes à l\'étape '
-                '$matchingStep au lieu de $expectedStep.'
-          : 'Il semble y avoir $diff mouvement(s) en trop : vous êtes à '
-                'l\'étape $matchingStep au lieu de $expectedStep.';
+          ? 'Il semble manquer ${-diff} mouvement(s) : reprenez à '
+                "l'étape ${matchingStep! + 1}."
+          : 'Il semble y avoir $diff mouvement(s) en trop : reprenez à '
+                "l'étape ${matchingStep! + 1}.";
     }
     return 'Le cube ne correspond plus à la solution '
         '(${mismatchedFacelets.length} case(s) différente(s)). Une pièce a '

@@ -4,6 +4,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../cube/cube.dart';
 import 'manual_input_page.dart';
+import 'scan_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -29,11 +30,24 @@ class HomePage extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             const Text(
-              'Indiquez les couleurs de chaque face : l\'application vérifie '
-              'que le cube est valide, puis vous guide mouvement par '
-              'mouvement.',
+              'Scannez ou saisissez les couleurs de chaque face : '
+              'l\'application vérifie que le cube est valide, puis vous guide '
+              'mouvement par mouvement.',
             ),
             const SizedBox(height: 24),
+            Card(
+              child: ListTile(
+                leading: const Icon(Icons.photo_camera),
+                title: const Text('Scanner le cube'),
+                subtitle: const Text(
+                  'Photographiez les 6 faces, les couleurs sont détectées',
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(builder: (_) => const ScanPage()),
+                ),
+              ),
+            ),
             Card(
               child: ListTile(
                 leading: const Icon(Icons.grid_on),
@@ -51,14 +65,6 @@ class HomePage extends StatelessWidget {
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () =>
                     open(CubeInput.fromCube(CubieCube.random(Random()))),
-              ),
-            ),
-            const Card(
-              child: ListTile(
-                enabled: false,
-                leading: Icon(Icons.photo_camera),
-                title: Text('Scanner avec l\'appareil photo'),
-                subtitle: Text('Bientôt disponible'),
               ),
             ),
           ],
