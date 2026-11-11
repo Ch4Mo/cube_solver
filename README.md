@@ -10,13 +10,22 @@ cube est valide (et signale une pièce manipulée), puis affiche la solution pas
 | Étape | État |
 |---|---|
 | 1. Modèle du cube, validation, solveur, suivi | ✅ fait |
-| 2. Saisie manuelle des couleurs | à faire |
+| 2. Saisie manuelle des couleurs | ✅ fait |
 | 3. Capture photo + détection des couleurs | à faire |
 | 4. Affichage de la solution en 3D | à faire |
 | 5. Vérification en cours de résolution (photo) | logique faite, écran à faire |
 
-L'écran actuel est une démo : « Mélanger » génère un cube aléatoire, et
-« Résoudre » calcule la solution, que l'on peut parcourir étape par étape.
+Parcours actuel :
+
+1. **Accueil** : saisir les couleurs, ou partir d'un cube mélangé au hasard.
+2. **Saisie** : face par face (avant, droite, arrière, gauche, haut, bas), avec
+   la consigne pour tenir le cube. On choisit une couleur dans la palette
+   (compteur « n/9 ») puis on touche les cases. La vue dépliée permet de
+   sauter à n'importe quelle face. Les erreurs s'affichent en direct et les
+   cases en cause sont entourées en rouge.
+3. **Solution** : chaque mouvement en notation (R, U'…) et en clair
+   (« Tournez la face droite (rouge) d'un quart de tour dans le sens
+   horaire »), avec l'état du cube à chaque étape.
 
 ## Structure
 
@@ -28,7 +37,8 @@ lib/cube/            Cœur logique en pur Dart (sans Flutter)
   validation.dart    Vérifie qu'un cube scanné est réel et résoluble
   solver.dart        Algorithme à deux phases de Kociemba
   tracking.dart      Vérifie une face pendant la résolution
-lib/main.dart        Écran de démo
+  cube_input.dart    Saisie en cours, consignes, textes en français
+lib/ui/              Écrans Flutter (accueil, saisie, solution)
 test/                Tests unitaires
 ```
 

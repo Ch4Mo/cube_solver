@@ -105,7 +105,7 @@ ValidationResult validateColors(List<CubeColor> colors) {
         CubeError(
           CubeErrorType.wrongColorCount,
           'Chaque couleur doit apparaître 9 fois ($detail). '
-          'Vérifiez les couleurs détectées.',
+          'Vérifiez les couleurs.',
           facelets: [
             for (var i = 0; i < 54; i++)
               if (counts[colors[i]] != 9) i,
@@ -189,7 +189,7 @@ ValidationResult validateFacelets(List<Face> f) {
         CubeError(
           CubeErrorType.invalidCorner,
           'Le coin en position ${cornerName(i)} a une combinaison de couleurs '
-          'impossible. Vérifiez les couleurs détectées.',
+          'impossible. Vérifiez les couleurs.',
           facelets: fl,
         ),
       );
@@ -220,7 +220,7 @@ ValidationResult validateFacelets(List<Face> f) {
         CubeError(
           CubeErrorType.invalidEdge,
           "L'arête en position ${edgeName(i)} a une combinaison de couleurs "
-          'impossible. Vérifiez les couleurs détectées.',
+          'impossible. Vérifiez les couleurs.',
           facelets: edgeFacelets[i],
         ),
       );
