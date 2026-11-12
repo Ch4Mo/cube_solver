@@ -1,6 +1,6 @@
 # Cube Solver
 
-Application Android / iOS (Flutter) d'aide à la résolution du Rubik's Cube :
+Application Android / iOS (Flutter) d'aide à la résolution du cube 3×3 :
 on photographie les 6 faces, l'application détecte les couleurs, vérifie que le
 cube est valide (et signale une pièce manipulée), puis guide la résolution
 mouvement par mouvement.
@@ -18,8 +18,11 @@ Android demande d'autoriser l'installation d'applications « de sources
 inconnues » pour le navigateur : c'est normal pour une application installée
 hors du Play Store. Android 7.0 minimum.
 
-L'APK est signé avec une clé de développement : pour installer une future
-version, il faudra peut-être d'abord désinstaller celle-ci.
+Depuis la version 1.1.0, l'identifiant de l'application a changé
+(`io.github.ch4mo.cubesolver`) : **désinstallez d'abord les versions 1.0.x**,
+sinon les deux apparaîtront côte à côte.
+
+Publication sur les stores et publicité : voir [STORE.md](STORE.md).
 
 **iOS** : le code est prêt (autorisation caméra, icône), mais une installation
 sur iPhone nécessite un Mac avec Xcode et un compte Apple Developer
@@ -27,7 +30,7 @@ sur iPhone nécessite un Mac avec Xcode et un compte Apple Developer
 
 ## Utilisation
 
-1. **Accueil** : scanner le cube ou saisir les couleurs à la main (le menu de
+1. **Accueil** : cube animé, puis scanner le cube ou saisir les couleurs à la main (le menu de
    l'écran de saisie permet aussi de remplir un cube mélangé au hasard).
 2. **Scan** : 6 photos, dans l'ordre avant, droite, arrière, gauche, haut, bas.
    Une consigne indique comment tenir le cube pour chaque face. On place la
@@ -94,8 +97,12 @@ lib/cube/              Cœur logique en pur Dart (sans Flutter)
 lib/vision/            Détection des couleurs
   sampler.dart         Mesure des 9 cases sur une photo
   color_classifier.dart Classification (Lab, centres de référence)
+lib/ads/               Publicité AdMob et consentement RGPD
 lib/ui/                Écrans Flutter (accueil, scan, saisie, solution, 3D)
 test/                  Tests unitaires et d'interface
+docs/                  Politique de confidentialité
+fastlane/              Textes et visuels de la fiche Play Store
+tool/                  Génération de l'icône et des visuels du store
 dist/                  APK Android et QR code d'installation
 ```
 

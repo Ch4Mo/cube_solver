@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart' show compute;
 import 'package:material_ui/material_ui.dart';
 
+import '../ads/ad_banner.dart';
 import '../cube/cube.dart';
 import '../vision/color_classifier.dart';
 import 'cube_3d.dart';
@@ -140,6 +141,7 @@ class _SolutionPageState extends State<SolutionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: const AdBanner(),
       appBar: AppBar(
         title: const Text('Solution'),
         actions: [

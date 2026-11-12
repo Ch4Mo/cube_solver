@@ -1,4 +1,4 @@
-/// Définitions de base du Rubik's Cube 3x3.
+/// Définitions de base du cube 3×3.
 ///
 /// Conventions (identiques à celles de l'algorithme de Kociemba) :
 ///

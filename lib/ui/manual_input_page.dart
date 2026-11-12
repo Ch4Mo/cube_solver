@@ -2,6 +2,8 @@ import 'dart:math';
 
 import 'package:material_ui/material_ui.dart';
 
+import '../ads/ad_banner.dart';
+import '../ads/ads.dart';
 import '../cube/cube.dart';
 import '../vision/color_classifier.dart';
 import 'cube_widgets.dart';
@@ -71,8 +73,11 @@ class _ManualInputPageState extends State<ManualInputPage> {
     }
   }
 
-  void _solve(ValidationResult v) {
-    Navigator.of(context).push(
+  Future<void> _solve(ValidationResult v) async {
+    // Annonce plein écran éventuelle (au plus une toutes les 3 minutes).
+    await Ads.maybeShowInterstitial();
+    if (!mounted) return;
+    await Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => SolutionPage(
           start: v.cube!,
@@ -96,10 +101,12 @@ class _ManualInputPageState extends State<ManualInputPage> {
     final counts = _input.colorCounts;
 
     return Scaffold(
+      bottomNavigationBar: const AdBanner(),
       appBar: AppBar(
         title: const Text('Saisie des couleurs'),
         actions: [
           PopupMenuButton<String>(
+            tooltip: "Plus d'options",
             onSelected: _onMenu,
             itemBuilder: (_) => const [
               PopupMenuItem(value: 'clear', child: Text('Tout effacer')),

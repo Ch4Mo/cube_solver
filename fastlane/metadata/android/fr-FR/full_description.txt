@@ -1,0 +1,20 @@
+Bloqué sur votre cube 3×3 ? Cube Solver le résout avec vous.
+
+📷 SCANNEZ
+Photographiez les 6 faces avec l'appareil photo. Une grille vous aide à cadrer, une consigne vous indique comment tenir le cube, et la lampe peut s'allumer si la pièce est sombre.
+
+✅ VÉRIFIEZ
+Les couleurs sont détectées automatiquement, même sous un éclairage difficile. Les cases incertaines sont signalées et se corrigent d'un simple toucher. Vous pouvez aussi saisir les couleurs entièrement à la main.
+
+🧩 RÉSOLVEZ
+L'application calcule une solution courte (environ 20 mouvements) et vous guide pas à pas : un cube en 3D avec une flèche montre chaque mouvement, accompagné d'une explication claire (« Tournez la face droite d'un quart de tour dans le sens horaire »).
+
+🔍 DÉTECTION DES ERREURS
+• Couleur mal lue ou case oubliée
+• Coin tourné sur lui-même, arête retournée ou pièces échangées : l'application vous prévient que le cube a été démonté ou manipulé et ne peut pas être résolu en l'état.
+• En cours de résolution, une photo de la face avant suffit pour vérifier que vous êtes au bon endroit : l'application détecte un mouvement oublié ou en trop et vous aide à vous recaler.
+
+🔒 RESPECT DE LA VIE PRIVÉE
+Les photos sont analysées directement sur votre téléphone : elles ne sont ni envoyées ni enregistrées.
+
+L'application est gratuite et financée par la publicité.

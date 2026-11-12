@@ -1,0 +1,1 @@
+Première version : scan des 6 faces, détection des couleurs, solution guidée en 3D et détection des erreurs.

@@ -98,31 +98,73 @@ class _Cube3DPainter extends CustomPainter {
     final center = size.center(Offset.zero);
     Offset toScreen(P3 p) => center + project(p) * scale;
 
-    final edge = Paint()
-      ..color = Colors.black
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = max(1.5, scale * 0.06)
-      ..strokeJoin = StrokeJoin.round;
+    // Corps noir du cube (silhouette hexagonale aux coins arrondis).
+    final body = Paint()
+      ..color = const Color(0xFF16161C)
+      ..strokeJoin = StrokeJoin.round
+      ..strokeWidth = scale * 0.12;
+    final hexagon = Path()
+      ..addPolygon([
+        for (final p in const <P3>[
+          (0, 3, 0),
+          (3, 3, 0),
+          (3, 0, 0),
+          (3, 0, 3),
+          (0, 0, 3),
+          (0, 3, 3),
+        ])
+          toScreen(p),
+      ], true);
+    canvas.drawPath(hexagon, body..style = PaintingStyle.fill);
+    canvas.drawPath(hexagon, body..style = PaintingStyle.stroke);
 
     for (final face in [Face.U, Face.F, Face.R]) {
       // Ombrage léger pour donner du relief.
       final shade = switch (face) {
         Face.U => 1.0,
-        Face.F => 0.92,
-        _ => 0.8,
+        Face.F => 0.9,
+        _ => 0.78,
       };
+      // Chaque face est l'image affine du carré [0, 3]² : on dessine les
+      // autocollants arrondis dans ce repère local.
+      final corners = faceletQuad(face, 0, 0);
+      final o = toScreen(corners[0]);
+      final u = toScreen(faceletQuad(face, 0, 2)[1]) - o;
+      final v = toScreen(faceletQuad(face, 2, 0)[3]) - o;
+      canvas.save();
+      canvas.transform(
+        Matrix4(
+          u.dx / 3,
+          u.dy / 3,
+          0,
+          0, //
+          v.dx / 3,
+          v.dy / 3,
+          0,
+          0, //
+          0,
+          0,
+          1,
+          0, //
+          o.dx,
+          o.dy,
+          0,
+          1, //
+        ).storage,
+      );
       for (var row = 0; row < 3; row++) {
         for (var col = 0; col < 3; col++) {
-          final quad = faceletQuad(face, row, col).map(toScreen).toList();
-          final path = Path()..addPolygon(quad, true);
           final base = displayColor(colors[face.index * 9 + row * 3 + col]);
-          canvas.drawPath(
-            path,
+          canvas.drawRRect(
+            RRect.fromRectAndRadius(
+              Rect.fromLTWH(col + 0.07, row + 0.07, 0.86, 0.86),
+              const Radius.circular(0.18),
+            ),
             Paint()..color = Color.lerp(Colors.black, base, shade)!,
           );
-          canvas.drawPath(path, edge);
         }
       }
+      canvas.restore();
     }
 
     final m = move;

@@ -1,4 +1,4 @@
-/// Cœur logique du Rubik's Cube : modèle, validation, solveur, suivi.
+/// Cœur logique du cube 3×3 : modèle, validation, solveur, suivi.
 ///
 /// Ce module n'utilise pas Flutter : il est testable en pur Dart.
 library;
