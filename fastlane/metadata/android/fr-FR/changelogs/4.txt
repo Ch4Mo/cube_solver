@@ -1,0 +1,1 @@
+Correctif : l'application se fermait au démarrage. Ouverture de l'appareil photo plus fiable au premier lancement.

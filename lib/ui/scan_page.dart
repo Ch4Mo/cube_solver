@@ -53,22 +53,34 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
     super.dispose();
   }
 
+  /// Vrai pendant l'ouverture de la caméra (évite deux ouvertures en même
+  /// temps, par exemple pendant la demande d'autorisation).
+  bool _initializing = false;
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    final controller = _controller;
-    if (state == AppLifecycleState.inactive) {
+    // La demande d'autorisation ne rend l'application qu'« inactive » : on ne
+    // libère la caméra que lorsque l'application passe réellement en
+    // arrière-plan.
+    if (state == AppLifecycleState.hidden ||
+        state == AppLifecycleState.paused) {
+      final controller = _controller;
       _controller = null;
       controller?.dispose();
       if (mounted) setState(() {});
-    } else if (state == AppLifecycleState.resumed && controller == null) {
+    } else if (state == AppLifecycleState.resumed && _controller == null) {
       _initCamera();
     }
   }
 
   Future<void> _initCamera() async {
+    if (_initializing) return;
+    _initializing = true;
+    if (mounted) setState(() => _cameraError = null);
     try {
       final cameras = await availableCameras();
       if (cameras.isEmpty) {
+        if (!mounted) return;
         setState(() => _cameraError = 'Aucun appareil photo disponible.');
         return;
       }
@@ -98,6 +110,7 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
         _cameraError = null;
       });
     } on CameraException catch (e) {
+      if (!mounted) return;
       setState(
         () => _cameraError = switch (e.code) {
           'CameraAccessDenied' ||
@@ -108,6 +121,8 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
           _ => "Impossible d'ouvrir l'appareil photo (${e.code}).",
         },
       );
+    } finally {
+      _initializing = false;
     }
   }
 
@@ -292,14 +307,24 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
   Widget _preview(double size) {
     final controller = _controller;
     Widget content;
-    if (_cameraError != null) {
+    if (_cameraError != null && controller == null) {
       content = Center(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: Text(
-            _cameraError!,
-            textAlign: TextAlign.center,
-            style: const TextStyle(color: Colors.white),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                _cameraError!,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.white),
+              ),
+              const SizedBox(height: 12),
+              FilledButton.tonal(
+                onPressed: _initCamera,
+                child: const Text('Réessayer'),
+              ),
+            ],
           ),
         ),
       );
