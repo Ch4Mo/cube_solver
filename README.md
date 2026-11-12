@@ -27,8 +27,8 @@ sur iPhone nécessite un Mac avec Xcode et un compte Apple Developer
 
 ## Utilisation
 
-1. **Accueil** : scanner le cube, saisir les couleurs à la main, ou essayer
-   avec un cube mélangé au hasard.
+1. **Accueil** : scanner le cube ou saisir les couleurs à la main (le menu de
+   l'écran de saisie permet aussi de remplir un cube mélangé au hasard).
 2. **Scan** : 6 photos, dans l'ordre avant, droite, arrière, gauche, haut, bas.
    Une consigne indique comment tenir le cube pour chaque face. On place la
    face dans la grille, puis « Prendre la photo ». Les miniatures montrent les

@@ -17,7 +17,8 @@ void main() {
   testWidgets("l'accueil s'affiche", (tester) async {
     await tester.pumpWidget(const CubeSolverApp());
     expect(find.text('Saisir les couleurs'), findsOneWidget);
-    expect(find.text('Essayer avec un cube mélangé'), findsOneWidget);
+    expect(find.text('Scanner le cube'), findsOneWidget);
+    expect(find.text('Essayer avec un cube mélangé'), findsNothing);
   });
 
   testWidgets('saisie vide : bouton Résoudre désactivé', (tester) async {
