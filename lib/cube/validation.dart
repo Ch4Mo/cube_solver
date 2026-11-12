@@ -1,3 +1,4 @@
+import '../l10n/strings.dart';
 import 'cubie_cube.dart';
 import 'definitions.dart';
 
@@ -35,7 +36,8 @@ enum CubeErrorType {
   swappedPieces,
 }
 
-/// Un problème détecté, avec un message en français destiné à l'utilisateur.
+/// Un problème détecté, avec un message destiné à l'utilisateur (dans la
+/// langue active au moment de la validation).
 class CubeError {
   const CubeError(this.type, this.message, {this.facelets = const []});
 
@@ -82,7 +84,7 @@ ValidationResult validateColors(List<CubeColor> colors) {
       [
         CubeError(
           CubeErrorType.wrongFaceletCount,
-          'Il faut 54 cases (6 faces × 9), ${colors.length} reçues.',
+          Strings.current.wrongFaceletCount(colors.length),
         ),
       ],
       null,
@@ -98,14 +100,13 @@ ValidationResult validateColors(List<CubeColor> colors) {
   final badCounts = counts.entries.where((e) => e.value != 9).toList();
   if (badCounts.isNotEmpty) {
     final detail = badCounts
-        .map((e) => '${e.key.label} : ${e.value}')
+        .map((e) => '${e.key.label}: ${e.value}')
         .join(', ');
     return ValidationResult._(
       [
         CubeError(
           CubeErrorType.wrongColorCount,
-          'Chaque couleur doit apparaître 9 fois ($detail). '
-          'Vérifiez les couleurs.',
+          Strings.current.wrongColorCount(detail),
           facelets: [
             for (var i = 0; i < 54; i++)
               if (counts[colors[i]] != 9) i,
@@ -126,8 +127,7 @@ ValidationResult validateColors(List<CubeColor> colors) {
         [
           CubeError(
             CubeErrorType.duplicateCenter,
-            'Les faces ${scheme[c]!.letter} et ${face.letter} ont le même '
-            'centre (${c.label}).',
+            Strings.current.duplicateCenter(scheme[c]!.letter, face.letter, c),
             facelets: [scheme[c]!.centerIndex, face.centerIndex],
           ),
         ],
@@ -152,7 +152,7 @@ ValidationResult validateFaceletString(String s) {
       [
         CubeError(
           CubeErrorType.wrongFaceletCount,
-          'Il faut 54 cases (6 faces × 9), ${s.length} reçues.',
+          Strings.current.wrongFaceletCount(s.length),
         ),
       ],
       null,
@@ -188,8 +188,7 @@ ValidationResult validateFacelets(List<Face> f) {
       errors.add(
         CubeError(
           CubeErrorType.invalidCorner,
-          'Le coin en position ${cornerName(i)} a une combinaison de couleurs '
-          'impossible. Vérifiez les couleurs.',
+          Strings.current.invalidCorner(cornerName(i)),
           facelets: fl,
         ),
       );
@@ -219,8 +218,7 @@ ValidationResult validateFacelets(List<Face> f) {
       errors.add(
         CubeError(
           CubeErrorType.invalidEdge,
-          "L'arête en position ${edgeName(i)} a une combinaison de couleurs "
-          'impossible. Vérifiez les couleurs.',
+          Strings.current.invalidEdge(edgeName(i)),
           facelets: edgeFacelets[i],
         ),
       );
@@ -238,7 +236,7 @@ ValidationResult validateFacelets(List<Face> f) {
       errors.add(
         CubeError(
           CubeErrorType.duplicateCorner,
-          'Le coin ${cornerName(j)} apparaît ${where.length} fois.',
+          Strings.current.duplicateCorner(cornerName(j), where.length),
           facelets: [for (final i in where) ...cornerFacelets[i]],
         ),
       );
@@ -253,7 +251,7 @@ ValidationResult validateFacelets(List<Face> f) {
       errors.add(
         CubeError(
           CubeErrorType.duplicateEdge,
-          "L'arête ${edgeName(j)} apparaît ${where.length} fois.",
+          Strings.current.duplicateEdge(edgeName(j), where.length),
           facelets: [for (final i in where) ...edgeFacelets[i]],
         ),
       );
@@ -267,28 +265,18 @@ ValidationResult validateFacelets(List<Face> f) {
     errors.add(
       CubeError(
         CubeErrorType.twistedCorner,
-        'Un coin a été tourné sur lui-même (dans le sens '
-        '${twist == 1 ? 'horaire' : 'anti-horaire'}). Le cube ne peut pas être '
-        'résolu tant que ce coin n\'est pas remis dans le bon sens.',
+        Strings.current.twistedCorner(clockwise: twist == 1),
       ),
     );
   }
   if (cube.edgeFlipSum != 0) {
     errors.add(
-      const CubeError(
-        CubeErrorType.flippedEdge,
-        'Une arête a été retournée. Le cube ne peut pas être résolu tant '
-        'qu\'elle n\'est pas remise dans le bon sens.',
-      ),
+      CubeError(CubeErrorType.flippedEdge, Strings.current.flippedEdge),
     );
   }
   if (cube.cornerParity != cube.edgeParity) {
     errors.add(
-      const CubeError(
-        CubeErrorType.swappedPieces,
-        'Deux pièces ont été échangées (cube démonté ou autocollants '
-        'déplacés). Le cube ne peut pas être résolu en l\'état.',
-      ),
+      CubeError(CubeErrorType.swappedPieces, Strings.current.swappedPieces),
     );
   }
 

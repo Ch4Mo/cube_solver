@@ -1,0 +1,1 @@
+Escanea tu cubo 3×3 y sigue la solución, movimiento a movimiento.

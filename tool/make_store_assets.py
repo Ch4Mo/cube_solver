@@ -1,10 +1,10 @@
 """Génère les visuels de la fiche Google Play à partir de captures brutes.
 
-Usage : python3 tool/make_store_assets.py <dossier des captures brutes>
+Usage : python3 tool/make_store_assets.py <captures brutes> [fr-FR|en-US|es-ES]
 
 Captures attendues (1080 px de large) : 1_home.png, 2_input.png,
 3_solution.png, 4_error.png.
-Sortie : fastlane/metadata/android/fr-FR/images/
+Sortie : fastlane/metadata/android/<langue>/images/
 """
 import os
 import sys
@@ -12,19 +12,41 @@ import sys
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 ROOT = os.path.join(os.path.dirname(__file__), "..")
-OUT = os.path.join(ROOT, "fastlane", "metadata", "android", "fr-FR", "images")
+METADATA = os.path.join(ROOT, "fastlane", "metadata", "android")
 ICON = os.path.join(ROOT, "assets", "icon")
 FONT_BOLD = "/usr/share/fonts/opentype/inter/Inter-ExtraBold.otf"
 FONT_MED = "/usr/share/fonts/opentype/inter/Inter-Medium.otf"
 
 VIOLET, BLUE, CYAN = (124, 77, 255), (41, 121, 255), (0, 176, 255)
 
-CAPTIONS = [
-    ("1_home", "Résolvez votre cube 3×3", "Scannez, vérifiez, résolvez"),
-    ("2_input", "Détection des couleurs", "Corrigez une case d'un simple toucher"),
-    ("3_solution", "Guidé pas à pas", "Une flèche montre chaque mouvement"),
-    ("4_error", "Erreurs détectées", "Couleur mal lue ou pièce manipulée"),
-]
+CAPTIONS = {
+    "fr-FR": [
+        ("1_home", "Résolvez votre cube 3×3", "Scannez, vérifiez, résolvez"),
+        ("2_input", "Détection des couleurs",
+         "Corrigez une case d'un simple toucher"),
+        ("3_solution", "Guidé pas à pas", "Une flèche montre chaque mouvement"),
+        ("4_error", "Erreurs détectées", "Couleur mal lue ou pièce manipulée"),
+    ],
+    "en-US": [
+        ("1_home", "Solve your 3×3 cube", "Scan, check, solve"),
+        ("2_input", "Colour detection", "Fix any square with a single tap"),
+        ("3_solution", "Step-by-step guide", "An arrow shows every move"),
+        ("4_error", "Errors detected", "Misread colour or tampered piece"),
+    ],
+    "es-ES": [
+        ("1_home", "Resuelve tu cubo 3×3", "Escanea, verifica, resuelve"),
+        ("2_input", "Detección de colores",
+         "Corrige una casilla con un toque"),
+        ("3_solution", "Guía paso a paso", "Una flecha muestra cada movimiento"),
+        ("4_error", "Errores detectados", "Color mal leído o pieza manipulada"),
+    ],
+}
+
+TAGLINE = {
+    "fr-FR": ("Scannez votre cube 3×3,", "suivez le guide, il est résolu."),
+    "en-US": ("Scan your 3×3 cube,", "follow the guide, it’s solved."),
+    "es-ES": ("Escanea tu cubo 3×3,", "sigue la guía y quedará resuelto."),
+}
 
 
 def gradient(w, h):
@@ -87,7 +109,7 @@ def screenshot(raw_dir, name, title, subtitle):
     return canvas.convert("RGB")
 
 
-def feature_graphic():
+def feature_graphic(lang):
     W, H = 1024, 500
     canvas = gradient(W, H).convert("RGBA")
     cube = Image.open(os.path.join(ICON, "icon_foreground.png")).convert("RGBA")
@@ -97,24 +119,28 @@ def feature_graphic():
     d = ImageDraw.Draw(canvas)
     d.text((64, 150), "Cube Solver", font=ImageFont.truetype(FONT_BOLD, 92),
            fill="white")
-    d.text((68, 275), "Scannez votre cube 3×3,",
-           font=ImageFont.truetype(FONT_MED, 40), fill=(255, 255, 255, 235))
-    d.text((68, 325), "suivez le guide, il est résolu.",
-           font=ImageFont.truetype(FONT_MED, 40), fill=(255, 255, 255, 235))
+    line1, line2 = TAGLINE[lang]
+    font = ImageFont.truetype(FONT_MED, 40)
+    while d.textlength(line2, font=font) > 600:  # ne pas toucher le cube
+        font = ImageFont.truetype(FONT_MED, font.size - 2)
+    d.text((68, 275), line1, font=font, fill=(255, 255, 255, 235))
+    d.text((68, 325), line2, font=font, fill=(255, 255, 255, 235))
     return canvas.convert("RGB")
 
 
 def main():
     raw_dir = sys.argv[1]
-    phone = os.path.join(OUT, "phoneScreenshots")
+    lang = sys.argv[2] if len(sys.argv) > 2 else "fr-FR"
+    out = os.path.join(METADATA, lang, "images")
+    phone = os.path.join(out, "phoneScreenshots")
     os.makedirs(phone, exist_ok=True)
-    for i, (name, title, subtitle) in enumerate(CAPTIONS, 1):
+    for i, (name, title, subtitle) in enumerate(CAPTIONS[lang], 1):
         screenshot(raw_dir, name, title, subtitle).save(
             os.path.join(phone, f"{i}_{name.split('_', 1)[1]}.png"))
-    feature_graphic().save(os.path.join(OUT, "featureGraphic.png"))
+    feature_graphic(lang).save(os.path.join(out, "featureGraphic.png"))
     Image.open(os.path.join(ICON, "icon.png")).convert("RGB").resize(
-        (512, 512), Image.LANCZOS).save(os.path.join(OUT, "icon.png"))
-    print("Visuels générés dans", os.path.abspath(OUT))
+        (512, 512), Image.LANCZOS).save(os.path.join(out, "icon.png"))
+    print("Visuels générés dans", os.path.abspath(out))
 
 
 if __name__ == "__main__":

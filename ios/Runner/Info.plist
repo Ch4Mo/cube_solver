@@ -6,7 +6,13 @@
 		<true/>
 		<key>CFBundleDevelopmentRegion</key>
 		<string>$(DEVELOPMENT_LANGUAGE)</string>
-		<key>GADApplicationIdentifier</key>
+		<key>CFBundleLocalizations</key>
+	<array>
+		<string>fr</string>
+		<string>en</string>
+		<string>es</string>
+	</array>
+	<key>GADApplicationIdentifier</key>
 		<!-- Identifiant de test de Google : à remplacer par le vôtre (AdMob). -->
 		<string>ca-app-pub-3940256099942544~1458002511</string>
 		<key>SKAdNetworkItems</key>

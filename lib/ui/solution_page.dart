@@ -3,6 +3,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../ads/ad_banner.dart';
 import '../cube/cube.dart';
+import '../l10n/l10n_scope.dart';
 import '../vision/color_classifier.dart';
 import 'cube_3d.dart';
 import 'cube_widgets.dart';
@@ -10,8 +11,11 @@ import 'scan_page.dart';
 
 /// Résolution dans un isolate séparé pour ne pas bloquer l'interface
 /// pendant la construction des tables du solveur.
-List<String> _solveInIsolate(String facelets) =>
-    Solver.instance.solveFacelets(facelets).map((m) => m.notation).toList();
+/// Reçoit (facettes, langue) : l'isolate a sa propre langue active.
+List<String> _solveInIsolate((String, AppLanguage) args) {
+  Strings.current = Strings.of(args.$2);
+  return Solver.instance.solveFacelets(args.$1).map((m) => m.notation).toList();
+}
 
 /// Affiche la solution mouvement par mouvement.
 class SolutionPage extends StatefulWidget {
@@ -49,7 +53,10 @@ class _SolutionPageState extends State<SolutionPage> {
   Future<void> _solve() async {
     final facelets = widget.start.toFacelets().map((f) => f.letter).join();
     try {
-      final moves = await compute(_solveInIsolate, facelets);
+      final moves = await compute(_solveInIsolate, (
+        facelets,
+        Strings.current.language,
+      ));
       if (mounted) setState(() => _solution = moves.map(Move.parse).toList());
     } on Object catch (e) {
       if (mounted) setState(() => _error = e.toString());
@@ -74,6 +81,7 @@ class _SolutionPageState extends State<SolutionPage> {
     final check = checkFace(widget.start, _solution!, _step, Face.F, observed);
     if (!mounted) return;
 
+    final t = context.tr;
     await showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
@@ -81,9 +89,7 @@ class _SolutionPageState extends State<SolutionPage> {
           check.matches ? Icons.check_circle : Icons.warning_amber,
           color: check.matches ? Colors.green : Colors.orange,
         ),
-        title: Text(
-          check.matches ? 'Tout va bien' : 'Le cube ne correspond pas',
-        ),
+        title: Text(check.matches ? t.allGood : t.cubeMismatch),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -93,9 +99,9 @@ class _SolutionPageState extends State<SolutionPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _LabeledFace('Attendu', _currentColors.sublist(18, 27)),
+                  _LabeledFace(t.expected, _currentColors.sublist(18, 27)),
                   _LabeledFace(
-                    'Photo',
+                    t.photo,
                     colors,
                     highlighted: check.mismatchedFacelets.toSet(),
                   ),
@@ -111,12 +117,12 @@ class _SolutionPageState extends State<SolutionPage> {
                 Navigator.pop(context);
                 setState(() => _step = check.matchingStep!);
               },
-              child: Text("Aller à l'étape ${check.matchingStep! + 1}"),
+              child: Text(t.goToStep(check.matchingStep! + 1)),
             ),
           if (!check.matches && check.matchingStep == null) ...[
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Ignorer'),
+              child: Text(t.ignore),
             ),
             FilledButton(
               onPressed: () {
@@ -125,13 +131,13 @@ class _SolutionPageState extends State<SolutionPage> {
                   MaterialPageRoute<void>(builder: (_) => const ScanPage()),
                 );
               },
-              child: const Text('Rescanner le cube'),
+              child: Text(t.rescan),
             ),
           ],
           if (check.matches)
             FilledButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Continuer'),
+              child: Text(t.continueLabel),
             ),
         ],
       ),
@@ -140,14 +146,15 @@ class _SolutionPageState extends State<SolutionPage> {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.tr;
     return Scaffold(
       bottomNavigationBar: const AdBanner(),
       appBar: AppBar(
-        title: const Text('Solution'),
+        title: Text(t.solutionTitle),
         actions: [
           if (_solution != null && _solution!.isNotEmpty)
             IconButton(
-              tooltip: 'Vérifier avec une photo',
+              tooltip: t.verifyWithPhoto,
               onPressed: _verify,
               icon: const Icon(Icons.fact_check),
             ),
@@ -159,6 +166,7 @@ class _SolutionPageState extends State<SolutionPage> {
 
   Widget _body(BuildContext context) {
     final theme = Theme.of(context);
+    final t = context.tr;
     if (_error != null) {
       return Center(
         child: Padding(
@@ -169,20 +177,18 @@ class _SolutionPageState extends State<SolutionPage> {
     }
     final solution = _solution;
     if (solution == null) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text('Calcul de la solution…'),
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            Text(t.computing),
           ],
         ),
       );
     }
 
-    final front = widget.scheme[Face.F]!.label.toLowerCase();
-    final top = widget.scheme[Face.U]!.label.toLowerCase();
     final done = _step >= solution.length;
     final colors = _currentColors;
     final move = done ? null : solution[_step];
@@ -194,8 +200,7 @@ class _SolutionPageState extends State<SolutionPage> {
           child: ListTile(
             leading: const Icon(Icons.pan_tool_alt),
             title: Text(
-              'Gardez le centre $front face à vous et le centre $top en '
-              'haut pendant toute la résolution.',
+              t.holdCube(widget.scheme[Face.F]!, widget.scheme[Face.U]!),
             ),
           ),
         ),
@@ -205,13 +210,13 @@ class _SolutionPageState extends State<SolutionPage> {
         ),
         if (solution.isEmpty)
           Text(
-            'Le cube est déjà résolu !',
+            t.alreadySolved,
             style: theme.textTheme.headlineSmall,
             textAlign: TextAlign.center,
           )
         else if (done)
           Text(
-            'Bravo, cube résolu en ${solution.length} mouvements !',
+            t.solvedIn(solution.length),
             style: theme.textTheme.headlineSmall,
             textAlign: TextAlign.center,
           )
@@ -236,15 +241,15 @@ class _SolutionPageState extends State<SolutionPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               IconButton.outlined(
-                tooltip: 'Mouvement précédent',
+                tooltip: t.previousMove,
                 onPressed: _step > 0 ? () => setState(() => _step--) : null,
                 icon: const Icon(Icons.chevron_left),
               ),
               const SizedBox(width: 16),
-              Text('Étape ${_step + (done ? 0 : 1)} / ${solution.length}'),
+              Text(t.stepOf(_step + (done ? 0 : 1), solution.length)),
               const SizedBox(width: 16),
               IconButton.filled(
-                tooltip: 'Mouvement suivant',
+                tooltip: t.nextMove,
                 iconSize: 32,
                 onPressed: !done ? () => setState(() => _step++) : null,
                 icon: const Icon(Icons.chevron_right),
@@ -273,16 +278,14 @@ class _SolutionPageState extends State<SolutionPage> {
           OutlinedButton.icon(
             onPressed: _verify,
             icon: const Icon(Icons.photo_camera),
-            label: const Text('Vérifier mon cube avec une photo'),
+            label: Text(t.verifyMyCube),
           ),
         ],
         const SizedBox(height: 8),
         TextButton.icon(
           onPressed: () => setState(() => _showNet = !_showNet),
           icon: Icon(_showNet ? Icons.expand_less : Icons.expand_more),
-          label: Text(
-            _showNet ? 'Masquer toutes les faces' : 'Voir toutes les faces',
-          ),
+          label: Text(_showNet ? t.hideAllFaces : t.showAllFaces),
         ),
         if (_showNet) Center(child: CubeNetView(colors: colors)),
       ],

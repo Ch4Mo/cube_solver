@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import '../l10n/strings.dart';
 import 'cubie_cube.dart';
 import 'definitions.dart';
 import 'moves.dart';
@@ -193,7 +194,7 @@ class Solver {
     final search = _Search(this, cube, targetLength, timeout);
     final result = search.run();
     if (result == null) {
-      throw StateError('Aucune solution trouvée dans le temps imparti.');
+      throw StateError(Strings.current.noSolutionInTime);
     }
     return result;
   }

@@ -1,3 +1,4 @@
+import '../l10n/strings.dart';
 import 'cubie_cube.dart';
 import 'definitions.dart';
 import 'moves.dart';
@@ -18,15 +19,8 @@ const Map<Face, CubeColor> standardScheme = {
   Face.B: CubeColor.blue,
 };
 
-/// Nom d'une face en français.
-String faceName(Face face) => switch (face) {
-  Face.U => 'haut',
-  Face.D => 'bas',
-  Face.F => 'avant',
-  Face.B => 'arrière',
-  Face.R => 'droite',
-  Face.L => 'gauche',
-};
+/// Nom d'une face dans la langue active (« avant », « front »…).
+String faceName(Face face) => Strings.current.faceName(face);
 
 /// Face qui doit se trouver en haut de l'image quand on regarde [face]
 /// (convention de numérotation, voir `definitions.dart`).
@@ -97,10 +91,9 @@ class CubeInput {
     final center = _colors[face.centerIndex];
     final top = _colors[topNeighbor(face).centerIndex];
     if (center == null || top == null) {
-      return 'Face ${faceName(face)}';
+      return Strings.current.faceLabel(face);
     }
-    return 'Centre ${center.label.toLowerCase()} face à vous, '
-        'centre ${top.label.toLowerCase()} en haut.';
+    return Strings.current.orientationHint(center, top);
   }
 
   /// Valide la saisie, ou retourne `null` tant qu'elle est incomplète
@@ -119,40 +112,11 @@ class CubeInput {
 
 /// Consigne pour photographier une face pendant le scan (schéma standard :
 /// blanc en haut, vert devant). Suit l'ordre de [inputOrder].
-String scanInstruction(Face face) => switch (face) {
-  Face.F =>
-    'Tenez le cube avec le centre vert face à vous et le centre '
-        'blanc en haut.',
-  Face.R =>
-    "Tournez le cube d'un quart de tour vers la gauche : centre "
-        'rouge face à vous, blanc toujours en haut.',
-  Face.B =>
-    "Encore un quart de tour vers la gauche : centre bleu face à "
-        'vous, blanc en haut.',
-  Face.L =>
-    "Encore un quart de tour vers la gauche : centre orange face à "
-        'vous, blanc en haut.',
-  Face.U =>
-    'Revenez au vert face à vous, puis basculez le haut du cube vers '
-        'vous : centre blanc face à vous, bleu en haut.',
-  Face.D =>
-    'Revenez au vert face à vous, puis basculez le bas du cube vers '
-        'vous : centre jaune face à vous, vert en haut.',
-};
+String scanInstruction(Face face) => Strings.current.scanInstruction(face);
 
-/// Explication d'un mouvement en français, par ex. « Tournez la face droite
+/// Explication d'un mouvement dans la langue active, par ex. « Tournez la face droite
 /// (rouge) d'un quart de tour dans le sens horaire ».
 ///
 /// Le sens horaire s'entend en regardant la face concernée.
-String describeMove(Move move, [Map<Face, CubeColor>? scheme]) {
-  final color = scheme?[move.face];
-  final face = color == null
-      ? 'la face ${faceName(move.face)}'
-      : 'la face ${faceName(move.face)} (${color.label.toLowerCase()})';
-  final turn = switch (move.turns) {
-    1 => "d'un quart de tour dans le sens horaire",
-    2 => "d'un demi-tour",
-    _ => "d'un quart de tour dans le sens anti-horaire",
-  };
-  return 'Tournez $face $turn.';
-}
+String describeMove(Move move, [Map<Face, CubeColor>? scheme]) =>
+    Strings.current.describeMove(move.face, move.turns, scheme?[move.face]);

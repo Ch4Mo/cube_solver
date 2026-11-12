@@ -1,0 +1,1 @@
+Now available in English and Spanish. Clearer ×2 badge for half turns. Fixed: the app closed on launch; more reliable camera on first use.

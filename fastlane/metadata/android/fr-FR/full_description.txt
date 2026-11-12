@@ -14,6 +14,8 @@ L'application calcule une solution courte (environ 20 mouvements) et vous guide 
 • Coin tourné sur lui-même, arête retournée ou pièces échangées : l'application vous prévient que le cube a été démonté ou manipulé et ne peut pas être résolu en l'état.
 • En cours de résolution, une photo de la face avant suffit pour vérifier que vous êtes au bon endroit : l'application détecte un mouvement oublié ou en trop et vous aide à vous recaler.
 
+🌍 Disponible en français, anglais et espagnol.
+
 🔒 RESPECT DE LA VIE PRIVÉE
 Les photos sont analysées directement sur votre téléphone : elles ne sont ni envoyées ni enregistrées.
 

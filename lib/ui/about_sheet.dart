@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../ads/ads.dart';
 import '../app_info.dart';
+import '../l10n/l10n_scope.dart';
 
 /// Feuille « À propos » : version, confidentialité, préférences publicitaires.
 Future<void> showAboutSheet(BuildContext context) async {
@@ -14,6 +15,7 @@ Future<void> showAboutSheet(BuildContext context) async {
     Ads.privacyOptionsRequired(),
   ]);
   if (!context.mounted) return;
+  final t = context.tr;
   final version = results[0] as String?;
   final privacyOptions = results[1] as bool;
 
@@ -28,25 +30,23 @@ Future<void> showAboutSheet(BuildContext context) async {
             leading: const Icon(Icons.info_outline),
             title: const Text(AppInfo.name),
             subtitle: Text(
-              version == null
-                  ? 'Aide à la résolution du cube 3×3'
-                  : 'Version $version',
+              version == null ? t.appDescription : t.version(version),
             ),
           ),
           ListTile(
             leading: const Icon(Icons.privacy_tip_outlined),
-            title: const Text('Politique de confidentialité'),
+            title: Text(t.privacyPolicy),
             trailing: const Icon(Icons.open_in_new),
             onTap: () => launchUrl(
-              Uri.parse(AppInfo.privacyPolicyUrl),
+              Uri.parse(AppInfo.privacyPolicyUrl(t.language)),
               mode: LaunchMode.externalApplication,
             ),
           ),
           if (privacyOptions)
             ListTile(
               leading: const Icon(Icons.tune),
-              title: const Text('Préférences publicitaires'),
-              subtitle: const Text('Modifier votre consentement'),
+              title: Text(t.adPreferences),
+              subtitle: Text(t.adPreferencesSubtitle),
               onTap: () {
                 Navigator.pop(context);
                 Ads.showPrivacyOptions();
@@ -54,7 +54,7 @@ Future<void> showAboutSheet(BuildContext context) async {
             ),
           ListTile(
             leading: const Icon(Icons.description_outlined),
-            title: const Text('Licences des logiciels utilisés'),
+            title: Text(t.licenses),
             onTap: () => showLicensePage(
               context: context,
               applicationName: AppInfo.name,

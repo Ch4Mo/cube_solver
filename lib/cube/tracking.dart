@@ -1,3 +1,4 @@
+import '../l10n/strings.dart';
 import 'cubie_cube.dart';
 import 'definitions.dart';
 import 'moves.dart';
@@ -25,19 +26,15 @@ class ProgressCheck {
   final int? matchingStep;
 
   String get message {
-    if (matches) return 'Tout est correct, continuez !';
+    final t = Strings.current;
+    if (matches) return t.progressOk;
     if (matchingStep != null) {
       final diff = matchingStep! - expectedStep;
       return diff < 0
-          ? 'Il semble manquer ${-diff} mouvement(s) : reprenez à '
-                "l'étape ${matchingStep! + 1}."
-          : 'Il semble y avoir $diff mouvement(s) en trop : reprenez à '
-                "l'étape ${matchingStep! + 1}.";
+          ? t.movesMissing(-diff, matchingStep! + 1)
+          : t.movesExtra(diff, matchingStep! + 1);
     }
-    return 'Le cube ne correspond plus à la solution '
-        '(${mismatchedFacelets.length} case(s) différente(s)). Une pièce a '
-        'probablement été bougée : scannez à nouveau le cube pour recalculer '
-        'une solution.';
+    return t.pieceMoved(mismatchedFacelets.length);
   }
 }
 

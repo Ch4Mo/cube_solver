@@ -5,6 +5,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../ads/ad_banner.dart';
 import '../cube/cube.dart';
+import '../l10n/l10n_scope.dart';
 import 'about_sheet.dart';
 import 'cube_3d.dart';
 import 'cube_widgets.dart';
@@ -25,6 +26,8 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
+    final t = context.tr;
+    final language = L10nScope.controllerOf(context);
     return Scaffold(
       body: DecoratedBox(
         decoration: const BoxDecoration(
@@ -42,14 +45,26 @@ class HomePage extends StatelessWidget {
             SafeArea(
               child: Column(
                 children: [
-                  Align(
-                    alignment: Alignment.topRight,
-                    child: IconButton(
-                      tooltip: 'À propos',
-                      color: Colors.white,
-                      onPressed: () => showAboutSheet(context),
-                      icon: const Icon(Icons.info_outline),
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      if (language != null)
+                        TextButton.icon(
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.white,
+                          ),
+                          onPressed: () =>
+                              showLanguagePicker(context, language),
+                          icon: const Icon(Icons.language),
+                          label: Text(t.language.name.toUpperCase()),
+                        ),
+                      IconButton(
+                        tooltip: t.about,
+                        color: Colors.white,
+                        onPressed: () => showAboutSheet(context),
+                        icon: const Icon(Icons.info_outline),
+                      ),
+                    ],
                   ),
                   Expanded(
                     child: LayoutBuilder(
@@ -77,8 +92,7 @@ class HomePage extends StatelessWidget {
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                'Scannez votre cube 3×3,\n'
-                                'suivez le guide, il est résolu.',
+                                t.tagline,
                                 textAlign: TextAlign.center,
                                 style: text.titleMedium?.copyWith(
                                   color: Colors.white.withValues(alpha: 0.92),
@@ -90,7 +104,7 @@ class HomePage extends StatelessWidget {
                               const SizedBox(height: 32),
                               _BigButton(
                                 icon: Icons.photo_camera_rounded,
-                                label: 'Scanner mon cube',
+                                label: t.scanMyCube,
                                 filled: true,
                                 onPressed: () =>
                                     _open(context, const ScanPage()),
@@ -98,7 +112,7 @@ class HomePage extends StatelessWidget {
                               const SizedBox(height: 12),
                               _BigButton(
                                 icon: Icons.grid_view_rounded,
-                                label: 'Saisir les couleurs',
+                                label: t.enterColors,
                                 filled: false,
                                 onPressed: () =>
                                     _open(context, const ManualInputPage()),
@@ -127,10 +141,11 @@ class _Steps extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const steps = [
-      ('Scannez', CubeColor.yellow),
-      ('Vérifiez', CubeColor.green),
-      ('Résolvez', CubeColor.orange),
+    final t = context.tr;
+    final steps = [
+      (t.stepScan, CubeColor.yellow),
+      (t.stepCheck, CubeColor.green),
+      (t.stepSolve, CubeColor.orange),
     ];
     return FittedBox(
       fit: BoxFit.scaleDown,
@@ -204,7 +219,14 @@ class _BigButton extends StatelessWidget {
     );
     final child = Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: [Icon(icon), const SizedBox(width: 10), Text(label)],
+      children: [
+        Icon(icon),
+        const SizedBox(width: 10),
+        // Réduit le texte s'il ne tient pas (langues longues, grande police).
+        Flexible(
+          child: FittedBox(fit: BoxFit.scaleDown, child: Text(label)),
+        ),
+      ],
     );
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 420),

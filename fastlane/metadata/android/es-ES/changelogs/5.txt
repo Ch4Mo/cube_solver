@@ -1,0 +1,1 @@
+Ahora disponible en inglés y español. Indicador ×2 más visible para las medias vueltas. Corregido: la aplicación se cerraba al iniciarse; cámara más fiable en el primer uso.

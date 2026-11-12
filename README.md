@@ -28,6 +28,13 @@ Publication sur les stores et publicité : voir [STORE.md](STORE.md).
 sur iPhone nécessite un Mac avec Xcode et un compte Apple Developer
 (TestFlight ou installation directe depuis Xcode).
 
+## Langues
+
+Français, anglais et espagnol. L'application suit la langue du téléphone
+(anglais si elle n'est pas disponible) ; le bouton de langue de l'accueil
+permet d'en choisir une autre. Tous les textes sont dans
+`lib/l10n/strings.dart`.
+
 ## Utilisation
 
 1. **Accueil** : cube animé, puis scanner le cube ou saisir les couleurs à la main (le menu de
@@ -97,10 +104,11 @@ lib/cube/              Cœur logique en pur Dart (sans Flutter)
 lib/vision/            Détection des couleurs
   sampler.dart         Mesure des 9 cases sur une photo
   color_classifier.dart Classification (Lab, centres de référence)
+lib/l10n/              Textes en français, anglais, espagnol ; choix de langue
 lib/ads/               Publicité AdMob et consentement RGPD
 lib/ui/                Écrans Flutter (accueil, scan, saisie, solution, 3D)
 test/                  Tests unitaires et d'interface
-docs/                  Politique de confidentialité
+docs/                  Politiques de confidentialité (fr, en, es)
 fastlane/              Textes et visuels de la fiche Play Store
 tool/                  Génération de l'icône et des visuels du store
 dist/                  APK Android et QR code d'installation

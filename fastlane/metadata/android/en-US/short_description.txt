@@ -1,0 +1,1 @@
+Scan your 3×3 cube and follow the solution, one move at a time.

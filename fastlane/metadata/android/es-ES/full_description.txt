@@ -1,0 +1,22 @@
+¿Atascado con tu cubo 3×3? Cube Solver lo resuelve contigo.
+
+📷 ESCANEA
+Fotografía las 6 caras con la cámara. Una cuadrícula te ayuda a encuadrar, una indicación te dice cómo sujetar el cubo y puedes encender la linterna si hay poca luz.
+
+✅ VERIFICA
+Los colores se detectan automáticamente, incluso con una iluminación difícil. Las casillas dudosas se señalan y se corrigen con un simple toque. También puedes introducir todos los colores a mano.
+
+🧩 RESUELVE
+La aplicación calcula una solución corta (unos 20 movimientos) y te guía paso a paso: un cubo en 3D con una flecha muestra cada movimiento, junto con una explicación clara («Gira la cara derecha un cuarto de vuelta en sentido horario»).
+
+🔍 DETECCIÓN DE ERRORES
+• Color mal leído o casilla olvidada
+• Esquina girada sobre sí misma, arista volteada o piezas intercambiadas: la aplicación te avisa de que el cubo ha sido desmontado o manipulado y no se puede resolver tal como está.
+• Durante la resolución, basta una foto de la cara frontal para comprobar que vas bien: la aplicación detecta un movimiento olvidado o de más y te ayuda a retomar el camino.
+
+🌍 Disponible en español, inglés y francés.
+
+🔒 PRIVACIDAD
+Las fotos se analizan directamente en tu teléfono: nunca se envían ni se guardan.
+
+La aplicación es gratuita y se financia con publicidad.

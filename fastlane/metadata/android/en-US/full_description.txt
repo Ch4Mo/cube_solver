@@ -1,0 +1,22 @@
+Stuck on your 3×3 cube? Cube Solver solves it with you.
+
+📷 SCAN
+Photograph the 6 faces with the camera. A grid helps you frame each face, a hint tells you how to hold the cube, and the light can be switched on if the room is dark.
+
+✅ CHECK
+Colours are detected automatically, even in difficult lighting. Uncertain squares are highlighted and can be corrected with a single tap. You can also enter all the colours by hand.
+
+🧩 SOLVE
+The app computes a short solution (about 20 moves) and guides you step by step: a 3D cube with an arrow shows each move, along with a clear explanation ("Turn the right face a quarter turn clockwise").
+
+🔍 ERROR DETECTION
+• Misread colour or missing square
+• Corner twisted in place, flipped edge or swapped pieces: the app tells you the cube has been taken apart or tampered with and cannot be solved as it is.
+• While solving, a photo of the front face is enough to check you are on track: the app spots a missed or extra move and helps you get back on track.
+
+🌍 Available in English, French and Spanish.
+
+🔒 PRIVACY
+Photos are analysed directly on your phone: they are never sent or saved.
+
+The app is free and supported by ads.

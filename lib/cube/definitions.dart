@@ -24,6 +24,8 @@
 /// - D est vue de dessous, avec F en haut de l'image.
 library;
 
+import '../l10n/strings.dart';
+
 /// Les six faces du cube.
 enum Face {
   U('U'),
@@ -47,15 +49,15 @@ enum Face {
 
 /// Couleurs physiques des autocollants.
 enum CubeColor {
-  white('Blanc'),
-  yellow('Jaune'),
-  green('Vert'),
-  blue('Bleu'),
-  red('Rouge'),
-  orange('Orange');
+  white,
+  yellow,
+  green,
+  blue,
+  red,
+  orange;
 
-  const CubeColor(this.label);
-  final String label;
+  /// Nom de la couleur dans la langue active (« Rouge », « Red »…).
+  String get label => Strings.current.colorName(this);
 }
 
 /// Les 8 coins : URF, UFL, ULB, UBR, DFR, DLF, DBL, DRB.

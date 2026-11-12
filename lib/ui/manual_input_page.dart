@@ -5,6 +5,7 @@ import 'package:material_ui/material_ui.dart';
 import '../ads/ad_banner.dart';
 import '../ads/ads.dart';
 import '../cube/cube.dart';
+import '../l10n/l10n_scope.dart';
 import '../vision/color_classifier.dart';
 import 'cube_widgets.dart';
 import 'solution_page.dart';
@@ -91,6 +92,8 @@ class _ManualInputPageState extends State<ManualInputPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    // Dépend de la langue : les messages de validation sont traduits.
+    final t = context.tr;
     final validation = _input.validate();
     final overused = _input.overusedColors.toSet();
     final highlighted = <int>{
@@ -103,17 +106,14 @@ class _ManualInputPageState extends State<ManualInputPage> {
     return Scaffold(
       bottomNavigationBar: const AdBanner(),
       appBar: AppBar(
-        title: const Text('Saisie des couleurs'),
+        title: Text(t.inputTitle),
         actions: [
           PopupMenuButton<String>(
-            tooltip: "Plus d'options",
+            tooltip: t.moreOptions,
             onSelected: _onMenu,
-            itemBuilder: (_) => const [
-              PopupMenuItem(value: 'clear', child: Text('Tout effacer')),
-              PopupMenuItem(
-                value: 'random',
-                child: Text('Remplir avec un cube mélangé'),
-              ),
+            itemBuilder: (_) => [
+              PopupMenuItem(value: 'clear', child: Text(t.clearAll)),
+              PopupMenuItem(value: 'random', child: Text(t.fillRandom)),
             ],
           ),
         ],
@@ -132,17 +132,14 @@ class _ManualInputPageState extends State<ManualInputPage> {
                       padding: const EdgeInsets.all(12),
                       child: Text(
                         _uncertain.isEmpty
-                            ? 'Couleurs détectées. Vérifiez chaque face et '
-                                  'corrigez si besoin.'
-                            : 'Couleurs détectées. Vérifiez chaque face : '
-                                  '${_uncertain.length} case(s) incertaine(s) '
-                                  'sont entourées en orange.',
+                            ? t.detectedAllGood
+                            : t.detectedUncertain(_uncertain.length),
                       ),
                     ),
                   ),
                 if (widget.fromScan) const SizedBox(height: 12),
                 Text(
-                  'Face ${_faceStep + 1}/6 : ${faceName(_face)}',
+                  t.faceProgress(_faceStep + 1, _face),
                   style: theme.textTheme.titleLarge,
                   textAlign: TextAlign.center,
                 ),
@@ -157,7 +154,7 @@ class _ManualInputPageState extends State<ManualInputPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     IconButton(
-                      tooltip: 'Face précédente',
+                      tooltip: t.previousFace,
                       onPressed: _faceStep > 0
                           ? () => setState(() => _faceStep--)
                           : null,
@@ -181,7 +178,7 @@ class _ManualInputPageState extends State<ManualInputPage> {
                       ),
                     ),
                     IconButton(
-                      tooltip: 'Face suivante',
+                      tooltip: t.nextFace,
                       onPressed: _faceStep < 5
                           ? () => setState(() => _faceStep++)
                           : null,
@@ -197,7 +194,7 @@ class _ManualInputPageState extends State<ManualInputPage> {
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  'Vue d\'ensemble (touchez une face pour la modifier)',
+                  t.overviewHint,
                   style: theme.textTheme.labelMedium,
                   textAlign: TextAlign.center,
                 ),
@@ -223,7 +220,7 @@ class _ManualInputPageState extends State<ManualInputPage> {
                       ? () => _solve(validation!)
                       : null,
                   icon: const Icon(Icons.auto_fix_high),
-                  label: const Text('Résoudre'),
+                  label: Text(t.solve),
                 ),
               ],
             );
@@ -258,7 +255,7 @@ class _Palette extends StatelessWidget {
             button: true,
             selected: c == selected,
             excludeSemantics: true,
-            label: '${c.label}, ${counts[c]} sur 9',
+            label: context.tr.paletteLabel(c, counts[c]!),
             child: GestureDetector(
               onTap: () => onSelected(c),
               child: Column(
@@ -317,16 +314,15 @@ class _StatusCard extends StatelessWidget {
     if (validation == null) {
       final remaining = 54 - input.filledCount;
       lines = [
-        '$remaining case(s) restante(s).',
-        for (final c in overused)
-          '${c.label} : plus de 9 cases, vérifiez cette couleur.',
+        context.tr.cellsRemaining(remaining),
+        for (final c in overused) context.tr.colorOverused(c),
       ];
       icon = overused.isEmpty ? Icons.edit : Icons.warning_amber;
       color = overused.isEmpty
           ? theme.colorScheme.onSurfaceVariant
           : Colors.red;
     } else if (validation!.isValid) {
-      lines = ['Cube valide, prêt à être résolu.'];
+      lines = [context.tr.cubeValid];
       icon = Icons.check_circle;
       color = Colors.green.shade700;
     } else {

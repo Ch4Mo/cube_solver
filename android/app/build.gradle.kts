@@ -46,6 +46,11 @@ android {
         manifestPlaceholders["admobAppId"] = admobAppId
     }
 
+    // Langues de l'application (sinon celles des bibliothèques s'ajoutent).
+    androidResources {
+        localeFilters += listOf("fr", "en", "es")
+    }
+
     signingConfigs {
         if (keystorePropertiesFile.exists()) {
             create("release") {

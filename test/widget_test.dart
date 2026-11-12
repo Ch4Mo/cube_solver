@@ -1,10 +1,17 @@
 import 'package:cube_solver/cube/cube.dart';
+import 'package:cube_solver/l10n/l10n_scope.dart';
 import 'package:cube_solver/main.dart';
 import 'package:cube_solver/ui/manual_input_page.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-Widget wrap(Widget child) => MaterialApp(home: child);
+/// Page seule, en français.
+Widget wrap(Widget child, [AppLanguage language = AppLanguage.fr]) =>
+    MaterialApp(
+      home: child,
+      builder: (context, child) => L10nScope(language: language, child: child!),
+    );
 
 /// Écran de téléphone haut, pour que toute la page soit construite.
 void tallScreen(WidgetTester tester) {
@@ -14,8 +21,13 @@ void tallScreen(WidgetTester tester) {
 }
 
 void main() {
+  setUp(() => SharedPreferences.setMockInitialValues({}));
+  tearDown(() => Strings.current = const StringsFr());
+
   testWidgets("l'accueil s'affiche", (tester) async {
-    await tester.pumpWidget(const CubeSolverApp());
+    await tester.pumpWidget(
+      CubeSolverApp(language: LanguageController(AppLanguage.fr)),
+    );
     expect(find.text('Saisir les couleurs'), findsOneWidget);
     expect(find.text('Scanner mon cube'), findsOneWidget);
     expect(find.text('Essayer avec un cube mélangé'), findsNothing);
@@ -93,5 +105,82 @@ void main() {
     await tester.pump();
     expect(find.textContaining('Tournez la face'), findsOneWidget);
     expect(find.text('Étape 1 / 4'), findsOneWidget);
+  });
+
+  group('Langues', () {
+    testWidgets('langue du téléphone non disponible → anglais', (tester) async {
+      tester.platformDispatcher.localesTestValue = const [Locale('de')];
+      addTearDown(tester.platformDispatcher.clearLocalesTestValue);
+      await tester.pumpWidget(CubeSolverApp(language: LanguageController()));
+      await tester.pump();
+      expect(find.text('Scan my cube'), findsOneWidget);
+    });
+
+    testWidgets('langue du téléphone espagnole', (tester) async {
+      tester.platformDispatcher.localesTestValue = const [Locale('es', 'ES')];
+      addTearDown(tester.platformDispatcher.clearLocalesTestValue);
+      await tester.pumpWidget(CubeSolverApp(language: LanguageController()));
+      await tester.pump();
+      expect(find.text('Escanear mi cubo'), findsOneWidget);
+    });
+
+    testWidgets("changer de langue depuis l'accueil", (tester) async {
+      final language = LanguageController(AppLanguage.fr);
+      await tester.pumpWidget(CubeSolverApp(language: language));
+      expect(find.text('Scanner mon cube'), findsOneWidget);
+
+      await tester.tap(find.text('FR'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.tap(find.text('English'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+
+      expect(language.value, AppLanguage.en);
+      expect(find.text('Scan my cube'), findsOneWidget);
+      expect(find.text('EN'), findsOneWidget);
+    });
+
+    testWidgets('saisie en anglais : messages traduits', (tester) async {
+      tallScreen(tester);
+      final cube = CubieCube()..applyMoves(Move.parseSequence('R U'));
+      final input = CubeInput.fromCube(cube);
+      final a = input[8], b = input[9], c = input[20];
+      input[8] = c;
+      input[9] = a;
+      input[20] = b;
+      await tester.pumpWidget(
+        wrap(ManualInputPage(initial: input), AppLanguage.en),
+      );
+      expect(find.text('Face 1/6: front'), findsOneWidget);
+      expect(find.textContaining('twisted in place'), findsOneWidget);
+    });
+
+    testWidgets('solution en espagnol', (tester) async {
+      tallScreen(tester);
+      final cube = CubieCube()..applyMoves(Move.parseSequence('R2'));
+      await tester.pumpWidget(
+        wrap(
+          ManualInputPage(initial: CubeInput.fromCube(cube)),
+          AppLanguage.es,
+        ),
+      );
+      expect(find.text('Cubo válido, listo para resolver.'), findsOneWidget);
+      await tester.tap(find.text('Resolver'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.runAsync(() async {
+        for (var i = 0; i < 100; i++) {
+          await Future<void>.delayed(const Duration(milliseconds: 100));
+          if (find.text('Calculando la solución…').evaluate().isEmpty) break;
+          await tester.pump();
+        }
+      });
+      await tester.pump();
+      expect(
+        find.text('Gira la cara derecha (rojo) media vuelta.'),
+        findsOneWidget,
+      );
+    });
   });
 }

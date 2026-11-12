@@ -4,6 +4,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../cube/cube.dart';
 import 'cube_widgets.dart';
+import '../l10n/l10n_scope.dart';
 
 /// Point 3D. Repère : x vers la droite, y vers le haut, z vers l'observateur.
 /// Le cube occupe [0, 3]³ ; la face avant (F) est en z = 3, la droite (R) en
@@ -11,6 +12,9 @@ import 'cube_widgets.dart';
 typedef P3 = (double, double, double);
 
 const double _cos30 = 0.8660254;
+
+/// Couleur de la pastille « ×2 » des demi-tours.
+const Color halfTurnBadgeColor = Color(0xFFE6007E);
 
 /// Projection isométrique (vue de face, de droite et de dessus).
 Offset project(P3 p) =>
@@ -69,9 +73,7 @@ class Cube3DView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: move == null
-          ? 'Vue 3D du cube'
-          : 'Vue 3D du cube, mouvement ${move!.notation}',
+      label: context.tr.cube3dLabel(move?.notation),
       child: CustomPaint(
         size: Size.square(size),
         painter: _Cube3DPainter(
@@ -168,11 +170,12 @@ class _Cube3DPainter extends CustomPainter {
     }
 
     final m = move;
-    if (m != null) _drawArrow(canvas, m, toScreen, scale);
+    if (m != null) _drawArrow(canvas, size, m, toScreen, scale);
   }
 
   void _drawArrow(
     Canvas canvas,
+    Size size,
     Move m,
     Offset Function(P3) toScreen,
     double scale,
@@ -229,21 +232,40 @@ class _Cube3DPainter extends CustomPainter {
     canvas.drawPath(headPath, Paint()..color = Colors.black);
 
     if (m.turns == 2) {
-      final tp = TextPainter(
-        text: TextSpan(
-          text: '×2',
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-            fontSize: scale * 0.55,
-            shadows: const [Shadow(color: Colors.white, blurRadius: 4)],
-          ),
-        ),
-        textDirection: TextDirection.ltr,
-      )..layout();
-      final mid = points[points.length ~/ 2];
-      tp.paint(canvas, mid + normal * (width * 2) - Offset(0, tp.height / 2));
+      _drawHalfTurnBadge(canvas, size, tip + unit * head * 1.5, scale);
     }
+  }
+
+  /// Pastille « ×2 » pour un demi-tour : disque magenta (couleur absente du
+  /// cube, donc toujours lisible) cerclé de blanc, près de la pointe.
+  void _drawHalfTurnBadge(Canvas canvas, Size size, Offset at, double scale) {
+    final r = max(14.0, scale * 0.5);
+    final center = Offset(
+      at.dx.clamp(r + 3, size.width - r - 3),
+      at.dy.clamp(r + 3, size.height - r - 3),
+    );
+    canvas.drawCircle(
+      center + const Offset(0, 2),
+      r + 2,
+      Paint()
+        ..color = Colors.black38
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3),
+    );
+    canvas.drawCircle(center, r + 2.5, Paint()..color = Colors.white);
+    canvas.drawCircle(center, r, Paint()..color = halfTurnBadgeColor);
+    final tp = TextPainter(
+      text: TextSpan(
+        text: '×2',
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.w900,
+          fontSize: r * 0.95,
+          height: 1,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    tp.paint(canvas, center - Offset(tp.width / 2, tp.height / 2));
   }
 
   @override

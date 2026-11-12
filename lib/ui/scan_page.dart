@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart' show compute;
 import 'package:material_ui/material_ui.dart';
 
 import '../cube/cube.dart';
+import '../l10n/l10n_scope.dart';
 import '../vision/color_classifier.dart';
 import '../vision/sampler.dart';
 import 'cube_widgets.dart';
@@ -81,7 +82,7 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
       final cameras = await availableCameras();
       if (cameras.isEmpty) {
         if (!mounted) return;
-        setState(() => _cameraError = 'Aucun appareil photo disponible.');
+        setState(() => _cameraError = context.tr.noCamera);
         return;
       }
       final back = cameras.firstWhere(
@@ -115,10 +116,8 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
         () => _cameraError = switch (e.code) {
           'CameraAccessDenied' ||
           'CameraAccessDeniedWithoutPrompt' ||
-          'CameraAccessRestricted' =>
-            "L'accès à l'appareil photo a été refusé. Autorisez-le dans les "
-                "réglages du téléphone, ou saisissez les couleurs à la main.",
-          _ => "Impossible d'ouvrir l'appareil photo (${e.code}).",
+          'CameraAccessRestricted' => context.tr.cameraDenied,
+          _ => context.tr.cameraError(e.code),
         },
       );
     } finally {
@@ -159,7 +158,7 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
       });
       if (warning != null) _showMessage(warning);
     } on Object catch (e) {
-      _showMessage('La photo a échoué : $e');
+      if (mounted) _showMessage(context.tr.photoFailed('$e'));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -172,8 +171,7 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
     for (final e in _samples.entries) {
       if (e.key == _face) continue;
       if (stickerDistance(lab, e.value[4].toLab()) < 10) {
-        return 'Le centre de cette face ressemble à celui de la face '
-            '${faceName(e.key)}. Avez-vous bien tourné le cube ?';
+        return context.tr.similarCenter(e.key);
       }
     }
     return null;
@@ -210,18 +208,19 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final t = context.tr;
     final complete = _samples.length == 6;
     return Scaffold(
       appBar: AppBar(
         title: Text(
           widget.singleFace != null
-              ? 'Vérification'
-              : 'Scanner : face ${_faceStep + 1}/6',
+              ? t.verifyTitle
+              : t.scanTitle(_faceStep + 1),
         ),
         actions: [
           if (_controller != null)
             IconButton(
-              tooltip: _torch ? 'Éteindre la lampe' : 'Allumer la lampe',
+              tooltip: _torch ? t.torchOff : t.torchOn,
               onPressed: _toggleTorch,
               icon: Icon(_torch ? Icons.flash_on : Icons.flash_off),
             ),
@@ -235,15 +234,14 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
               padding: const EdgeInsets.all(16),
               children: [
                 Text(
-                  'Face ${faceName(_face)}',
+                  t.faceTitle(_face),
                   style: theme.textTheme.titleLarge,
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 4),
                 Text(
                   widget.singleFace != null
-                      ? 'Photographiez la face qui est face à vous, sans '
-                            'tourner le cube.'
+                      ? t.verifyInstruction
                       : scanInstruction(_face),
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodyMedium,
@@ -252,7 +250,7 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
                 Center(child: _preview(previewSize)),
                 const SizedBox(height: 8),
                 Text(
-                  'Placez la face dans la grille, bien de face, sans reflet.',
+                  t.placeInGrid,
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodySmall,
                 ),
@@ -262,7 +260,7 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
                       ? FilledButton.icon(
                           onPressed: _analyze,
                           icon: const Icon(Icons.check),
-                          label: const Text('Analyser les couleurs'),
+                          label: Text(t.analyzeColors),
                         )
                       : FilledButton.icon(
                           onPressed: _controller == null || _busy
@@ -276,13 +274,13 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
                                   ),
                                 )
                               : const Icon(Icons.camera_alt),
-                          label: const Text('Prendre la photo'),
+                          label: Text(t.takePhoto),
                         ),
                 ),
                 if (widget.singleFace == null) ...[
                   const SizedBox(height: 20),
                   Text(
-                    'Faces scannées (touchez une face pour la refaire)',
+                    t.scannedFaces,
                     style: theme.textTheme.labelMedium,
                     textAlign: TextAlign.center,
                   ),
@@ -322,7 +320,7 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
               const SizedBox(height: 12),
               FilledButton.tonal(
                 onPressed: _initCamera,
-                child: const Text('Réessayer'),
+                child: Text(context.tr.retry),
               ),
             ],
           ),
@@ -372,7 +370,7 @@ class _ScanPageState extends State<ScanPage> with WidgetsBindingObserver {
     final selected = i == _faceStep;
     return Semantics(
       button: true,
-      label: 'Face ${faceName(face)}',
+      label: context.tr.faceLabel(face),
       child: GestureDetector(
         onTap: () => setState(() => _faceStep = i),
         child: Container(

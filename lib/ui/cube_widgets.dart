@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
 import '../cube/cube.dart';
+import '../l10n/l10n_scope.dart';
 
 /// Couleur d'affichage d'un autocollant (`null` = case non renseignée).
 Color displayColor(CubeColor? color) => switch (color) {
@@ -90,7 +91,7 @@ class FaceGrid extends StatelessWidget {
     return Semantics(
       button: true,
       excludeSemantics: true,
-      label: 'Case ${k + 1} : ${color?.label ?? 'vide'}',
+      label: context.tr.cellLabel(k + 1, color),
       child: GestureDetector(onTap: () => onTap!(k), child: box),
     );
   }
@@ -154,7 +155,7 @@ class CubeNetView extends StatelessWidget {
           if (onFaceTap == null) return grid;
           return Semantics(
             button: true,
-            label: 'Face ${faceName(f)}',
+            label: context.tr.faceLabel(f),
             child: GestureDetector(onTap: () => onFaceTap!(f), child: grid),
           );
         }

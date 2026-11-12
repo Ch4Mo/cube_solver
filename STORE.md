@@ -8,9 +8,10 @@ monétiser. Ce qui est déjà prêt dans le dépôt est marqué ✅.
 | ✅ Identifiant définitif : `io.github.ch4mo.cubesolver` | Android et iOS |
 | ✅ Signature de publication (clé d'envoi) | `android/key.properties` (non commité) |
 | ✅ App Bundle `.aab` | `flutter build appbundle` |
-| ✅ Textes de la fiche (titre, descriptions, nouveautés) | `fastlane/metadata/android/fr-FR/` |
-| ✅ Captures d'écran, bannière 1024×500, icône 512×512 | `fastlane/metadata/android/fr-FR/images/` |
-| ✅ Politique de confidentialité | `docs/privacy-policy.md` |
+| ✅ Application en français, anglais et espagnol | `lib/l10n/strings.dart` |
+| ✅ Textes de la fiche (titre, descriptions, nouveautés) | `fastlane/metadata/android/<langue>/` (fr-FR, en-US, es-ES) |
+| ✅ Captures d'écran, bannière 1024×500, icône 512×512 | `fastlane/metadata/android/<langue>/images/` |
+| ✅ Politique de confidentialité | `docs/privacy-policy.md` (+ `.en.md`, `.es.md`) |
 | ✅ Publicité AdMob + formulaire de consentement RGPD | `lib/ads/` |
 | ⬜ Comptes Google Play / AdMob / Apple | à créer par vous |
 | ⬜ Vrais identifiants AdMob | voir § 2 |
@@ -97,8 +98,10 @@ revenus significatifs. AdMob paie à partir de 70 € cumulés.
      impose le programme « Familles » et des annonces spécifiques).
    - *Sécurité des données* : voir § 4.
    - *Identifiant publicitaire* : **Oui**, utilisé pour la publicité.
-4. **Fiche principale du Play Store** : copiez les textes et images de
-   `fastlane/metadata/android/fr-FR/`.
+4. **Fiche principale du Play Store** (langue par défaut : français) :
+   copiez les textes et images de `fastlane/metadata/android/fr-FR/`.
+   Puis **Gérer les traductions → Ajouter vos propres traductions** :
+   anglais (en-US) et espagnol (es-ES), avec les dossiers correspondants.
 5. **Tests → Test fermé** : envoyez `app-release.aab`.
    Pour un compte personnel récent, Google exige un test fermé avec au moins
    **12 testeurs pendant 14 jours** avant l'accès à la production
@@ -133,8 +136,10 @@ L'adresse doit rester valide après publication. Deux options :
 - **Plus propre** : activer GitHub Pages (Settings → Pages → dossier `docs/`
   de `main`) : `https://ch4mo.github.io/cube_solver/privacy-policy`.
 
-Mettez ensuite la même adresse dans `lib/app_info.dart`
-(`privacyPolicyUrl`, lien affiché dans « À propos ») et recompilez.
+Mettez ensuite la même adresse dans `lib/app_info.dart` (`_docs`,
+lien affiché dans « À propos » selon la langue) et recompilez. Sur le Play
+Store, une seule URL est demandée : celle de la version française suffit
+(ou celle en anglais si vous visez surtout l'international).
 
 ## 6. App Store (iOS)
 
